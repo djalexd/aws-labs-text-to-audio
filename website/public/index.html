@@ -13,29 +13,8 @@
           <h1>Aws Labs: text to audio</h1>
           <p><h6>This website provides basic text to audio convertion using AWS technologies: Api Gateway, Lambda and Polly.
           The contents are stored using S3 static website</h6></p>
-
-          <div class="alert alert-warning" role="alert" id="local-storage-not-supported" style="display:none">
-            Browser doesn't have support for localStorage. The API key cannot be configured
-          </div>
-
-          <div class="alert alert-warning" role="alert" id="configure-api-key" style="display:none">
-            API key not yet configured!
-            <div class="input-group mb-3">
-              <div class="input-group-prepend">
-                <span class="input-group-text" id="basic-addon3">api key</span>
-              </div>
-              <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3">
-            </div>
-            <button type="button" class="btn btn-info" style="margin-left: 10px" onclick="storeApiKey()">configure</button>
-          </div>
-
-          <div class="alert alert-info" role="alert" id="stored-api-key" style="display:none">
-            Using API key: ?
-          </div>
       </div>
-
       <div class="row" id="root"/>
-
     </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
