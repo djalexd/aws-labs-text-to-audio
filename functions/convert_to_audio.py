@@ -19,7 +19,7 @@ def convert_to_mp3_and_store(id, text):
       Key='{}.mp3'.format(id),
       StorageClass='REDUCED_REDUNDANCY'
   )
-  return 'http://' + os.environ['mp3_bucket'] + '/{}.mp3'.format(id)
+  return 'https://s3-{}.amazonaws.com/{}/{}.mp3'.format(os.environ['region'], os.environ['mp3_bucket'], id)
 
 def update_status(id, text, new_status, location=None):
     dynamodb_client = boto3.client('dynamodb')

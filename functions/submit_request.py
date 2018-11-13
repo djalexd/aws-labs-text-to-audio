@@ -18,6 +18,16 @@ def handler(event, context):
     }
   else:
     text = event['body']
+    if len(text) > 400:
+      return {
+        "statusCode": 400,
+        "body": json.dumps({
+          "message": "Text length larger than 400"
+        }),
+        'headers': {
+          'Access-Control-Allow-Origin': '*'
+        }
+      }
     print("Storing text to convert: {}".format(text))
 
     dynamodb = boto3.client('dynamodb')

@@ -1,6 +1,7 @@
 import json
 import boto3
 import os
+from functions.convert import convert_types
 
 def handler(event, context):
   dynamodb_client = boto3.client('dynamodb')
@@ -8,13 +9,7 @@ def handler(event, context):
     TableName=os.environ['requests_table'],
     Limit=100)
 
-  def from_raw(x):
-    return {
-      'id': x['id']['S'],
-      'text': x['text']['S'],
-      'status': x['status']['S']
-    }
-  items = list(map(from_raw,response['Items']))
+  items = list(map(convert_types,response['Items']))
   return {
     'statusCode': 200,
     'body': json.dumps(items),

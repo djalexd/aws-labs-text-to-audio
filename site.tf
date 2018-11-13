@@ -44,6 +44,14 @@ resource "aws_s3_bucket" "mp3s" {
   acl    = "public-read"
   region = "${var.region}"
   tags = "${var.tags}"
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET"]
+    allowed_origins = ["*"]
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
 }
 
 resource "null_resource" "copy-contents" {

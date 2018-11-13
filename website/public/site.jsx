@@ -154,7 +154,15 @@ class ItemsList extends React.Component {
   }
 }
 
-const Item = ({ item }) => <li>{item.text}</li>
+const playSound = (e, location) => {
+  e.preventDefault()
+  const sound = new Howl({
+    src: [location]
+  })
+  sound.play()
+}
+
+const Item = ({ item }) => (<li>{item.text}<i onClick={e => playSound(e, item.mp3_location)} className="fas fa-volume-up" style={{display: item.status === 'PROCESSED' ? '' : 'none'}}></i></li>)
 
 ReactDOM.render(
   <App />,
