@@ -1,63 +1,34 @@
 import json
 import boto3
-from uuid import uuid4
 import os
+from functions.repositories import AudioText, Repo
+from functions.errors import LambdaHttpStatusError
+from functions.http import payload_response, error_response
+
+def publish(item):
+  sns_client = boto3.client('sns')
+  sns_client.publish(
+    TopicArn=os.environ['topic'],
+    Message=json.dumps(item))
 
 def handler(event, context):
   print("submit-request received event {}".format(json.dumps(event)))
-  no_body = {
-    "message": "Body is empty"
-  }
-  if event['body'] is None:
-    return {
-      'statusCode': 400,
-      'body': json.dumps(no_body),
-      'headers': {
-        'Access-Control-Allow-Origin': '*'
-      }
-    }
-  else:
+  try:
+    if event['body'] is None:
+      raise LambdaHttpStatusError(status=400, message='Body is empty')
+
     text = event['body']
-    if len(text) > 400:
-      return {
-        "statusCode": 400,
-        "body": json.dumps({
-          "message": "Text length larger than 400"
-        }),
-        'headers': {
-          'Access-Control-Allow-Origin': '*'
-        }
-      }
-    print("Storing text to convert: {}".format(text))
+    if len(text) > 500:
+      raise LambdaHttpStatusError(status=400, message='Text length larger than 500')
 
-    dynamodb = boto3.client('dynamodb')
-    id = str(uuid4())
-    dynamodb.put_item(
-      TableName=os.environ['requests_table'],
-      Item={
-        'id': { 'S': id },
-        'text': { 'S': text },
-        'status': { 'S': 'NEW' }
-      })
-    print("Stored text to convert: id={} / {}".format(id, text))
+    repo = Repo(table=os.environ['requests_table'])
+    item = AudioText(text=text)
+    print("Storing item: {}".format(item))
+    repo.store(item)
 
-    sns_client = boto3.client('sns')
-    sns_client.publish(
-      TopicArn=os.environ['topic'],
-      Message=json.dumps({
-        'id': id,
-        'text': text
-      })
-    )
-    print("Published message to SNS")
+    print("Publishing item: {}".format(item))
+    publish(item)
 
-    return {
-      "statusCode": 200,
-      "body": json.dumps({
-        'id': id,
-        'text': text
-      }),
-      'headers': {
-        'Access-Control-Allow-Origin': '*'
-      }
-    }
+    return payload_response(json.dumps(item))
+  except LambdaHttpStatusError as e:
+    return error_response(e)

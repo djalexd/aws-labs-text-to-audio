@@ -1,19 +1,11 @@
 import json
 import boto3
 import os
-from functions.convert import convert_types
+from functions.repositories import AudioText, Repo
+from functions.http import payload_response
 
 def handler(event, context):
-  dynamodb_client = boto3.client('dynamodb')
-  response = dynamodb_client.scan(
-    TableName=os.environ['requests_table'],
-    Limit=100)
-
-  items = list(map(convert_types,response['Items']))
-  return {
-    'statusCode': 200,
-    'body': json.dumps(items),
-    'headers': {
-      'Access-Control-Allow-Origin': '*'
-    }
-  }
+  repo = Repo(table=os.environ['requests_table'])
+  items = repo.scan()
+  # perhaps convert to AudioText?
+  return payload_response(json.dumps(items))
