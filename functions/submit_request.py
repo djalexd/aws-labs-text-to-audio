@@ -9,7 +9,7 @@ def publish(item):
   sns_client = boto3.client('sns')
   sns_client.publish(
     TopicArn=os.environ['topic'],
-    Message=json.dumps(item))
+    Message=json.dumps(item.__dict__))
 
 def handler(event, context):
   print("submit-request received event {}".format(json.dumps(event)))
@@ -29,6 +29,6 @@ def handler(event, context):
     print("Publishing item: {}".format(item))
     publish(item)
 
-    return payload_response(json.dumps(item))
+    return payload_response(json.dumps(item.__dict__))
   except LambdaHttpStatusError as e:
     return error_response(e)
