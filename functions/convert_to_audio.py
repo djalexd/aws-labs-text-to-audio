@@ -1,56 +1,70 @@
 import json
 import boto3
 import os
+from uuid import uuid4
 
-def convert_to_mp3_and_store(id, text):
-  polly_client = boto3.client('polly')
-  speech_response = polly_client.synthesize_speech(
-    OutputFormat='mp3',
-    SampleRate='8000',
-    Text=text,
-    TextType='text',
-    VoiceId='Nicole')
 
-  s3_client = boto3.client('s3')
-  s3_client.put_object(
-      ACL='public-read',
-      Body=speech_response['AudioStream'].read(),
-      Bucket=os.environ['mp3_bucket'],
-      Key='{}.mp3'.format(id),
-      StorageClass='REDUCED_REDUNDANCY'
-  )
-  return 'https://s3-{}.amazonaws.com/{}/{}.mp3'.format(os.environ['region'], os.environ['mp3_bucket'], id)
+def convert_to_mp3_and_store(text, voice='Nicole'):
+    polly_client = boto3.client('polly')
+    speech_response = polly_client.synthesize_speech(
+        OutputFormat='mp3',
+        SampleRate='8000',
+        Text=text,
+        TextType='text',
+        VoiceId=voice)
 
-def update_status(id, text, new_status, location=None):
+    s3_client = boto3.client('s3')
+    key = '{}.mp3'.format(str(uuid4()))
+    s3_client.put_object(
+        ACL='public-read',
+        Body=speech_response['AudioStream'].read(),
+        Bucket=os.environ['mp3_bucket'],
+        Key=key,
+        StorageClass='REDUCED_REDUNDANCY'
+    )
+    return 'https://s3-{}.amazonaws.com/{}/{}'.format(os.environ['region'], os.environ['mp3_bucket'], key)
+
+
+def update_status(id, new_status, location=None):
+    attrs = {
+        'status': {
+            'Value': {'S': new_status},
+            'Action': 'PUT'
+        }
+    }
+    if location:
+        attrs.update({'mp3_location': {
+            'Value': {'S': location},
+            'Action': 'PUT'
+        }})
     dynamodb_client = boto3.client('dynamodb')
-    item = {
-        'id': { 'S': id },
-        'text': { 'S': text },
-        'status': { 'S': new_status }
-      }
-    if location is not None:
-      item['mp3_location'] = { 'S': location }
-    dynamodb_client.put_item(
-      TableName=os.environ['requests_table'],
-      Item=item)
-    print("Updated status for: id={} / {}".format(id, text))
+    dynamodb_client.update_item(
+        TableName=os.environ['requests_table'],
+        Key={
+            'id': {'S': id}
+        },
+        AttributeUpdates=attrs)
+    print("Updated status for: id={} / new_status={}".format(id, new_status))
+
 
 def handler(event, context):
-  # only one Sns record (even if others are sent, 
-  # this lambda ignores them)
-  print("Received raw Sns: {}".format(event))
-  message = json.loads(event['Records'][0]['Sns']['Message'])
-  print("Received message to process from Sns: {}".format(message))
+    # only one Sns record (even if others are sent,
+    # this lambda ignores them)
+    print("Received raw Sns: {}".format(event))
+    for record in event['Records']:
+        message = json.loads(record['Sns']['Message'])
+        print("Received message to process from Sns: {}".format(message))
 
-  try:
-    location = convert_to_mp3_and_store(message['id'], message['text'])
-    update_status(
-      message['id'], 
-      message['text'],
-      'PROCESSED',
-      location)
-    return 'done'
-  except Exception as e:
-    print('Failed to convert to mp3 due to {}'.format(e))
-    update_status(message['id'], message['text'], 'FAILED', location=None)
-    raise e
+        id = message['id']
+        try:
+            location = convert_to_mp3_and_store(
+                message['text'], voice=message.get('voice', 'Nicole'))
+            update_status(
+                id,
+                new_status='PROCESSED',
+                location=location)
+            return 'done'
+        except Exception as e:
+            print('Failed to convert to mp3 due to {}'.format(e))
+            update_status(id, new_status='FAILED')
+            raise e

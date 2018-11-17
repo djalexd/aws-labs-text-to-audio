@@ -1,4 +1,5 @@
 import axios from "axios";
+import querystring from "querystring";
 
 const getItems = ({
   baseUrl,
@@ -15,11 +16,16 @@ const getItems = ({
 const createItem = ({
   baseUrl,
   apiKey,
+  voice = 'Nicole',
   text
 }) => {
-  return axios.post(`${baseUrl}/text-to-audio`, text, {
+  return axios.post(`${baseUrl}/text-to-audio`, querystring.stringify({
+      text,
+      voice
+    }), {
       headers: {
-        'x-api-key': apiKey
+        'x-api-key': apiKey,
+        'Content-Type': 'application/x-www-form-urlencoded'
       }
     })
     .then(r => r.data)

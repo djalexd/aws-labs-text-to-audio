@@ -34,6 +34,14 @@ class Item extends Component {
         onMouseOut={() => this.setState({ showIcon: false })}
       >
         <span className={this.badgeClasses()}>{this.props.item.status}</span>
+        <span
+          className="badge badge-secondary m-2"
+          style={{
+            display: this.props.item.status === "FAILED" ? "none" : "inline-block"
+          }}
+        >
+          Synthesized with voice of {this.props.item.voice || "N/A"}
+        </span>
         {this.props.item.text}
         <FontAwesomeIcon
           icon="play"

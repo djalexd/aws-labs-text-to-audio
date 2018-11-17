@@ -2,7 +2,8 @@ import React, { Component } from "react";
 
 class SubmitItem extends Component {
   state = {
-    text: ""
+    text: "",
+    voices: ["Nicole", "Brian", "Amy", "Joey", "Justin", "Kendra", "Salli"]
   };
 
   handleChange = e => {
@@ -58,6 +59,19 @@ class SubmitItem extends Component {
           >
             Submit
           </button>
+          <p className="m-1 text-muted col-lg-2">
+            <small>You can also choose the voice</small>
+          </p>
+          <select
+            className="ml-1 mt-1 mb-4 shadow"
+            onChange={this.props.onVoiceIdChange}
+          >
+            {this.state.voices.map(voiceId => (
+              <option key={voiceId} value={voiceId}>
+                {voiceId}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     );

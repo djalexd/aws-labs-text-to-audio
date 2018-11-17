@@ -6,7 +6,8 @@ import { getItems, createItem } from "../api";
 
 class ItemsList extends Component {
   state = {
-    items: []
+    items: [],
+    voice: undefined
   };
 
   componentDidMount() {
@@ -25,10 +26,11 @@ class ItemsList extends Component {
     sound.play();
   };
 
-  onSubmitText = text => {
+  onTextAdd = text => {
     createItem({
       baseUrl: this.props.apiBaseUrl,
       apiKey: this.props.apiKey,
+      voice: this.state.voice,
       text
     }).then(item => {
       const items = [item].concat(Array.from(this.state.items));
@@ -36,10 +38,17 @@ class ItemsList extends Component {
     });
   };
 
+  onVoiceIdChange = e => {
+    this.setState({ voice: e.target.value });
+  };
+
   render() {
     return (
       <React.Fragment>
-        <SubmitItem onTextAdd={this.onSubmitText} />
+        <SubmitItem
+          onTextAdd={this.onTextAdd}
+          onVoiceIdChange={this.onVoiceIdChange}
+        />
         <ul className="list-group">
           {this.state.items.map(item => (
             <Item key={item.id} item={item} onPlaySound={this.playSound} />
