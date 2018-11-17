@@ -39,13 +39,11 @@ resource "aws_iam_role" "lambda-execution-role-processor" {
 }
 
 resource "aws_iam_role_policy" "lambda-execution-role-processor-dynamodb-readwrite" {
-  name   = "lambda-execution-role-processor-dynamodb-readwrite"
   policy = "${data.aws_iam_policy_document.dynamodb-readwrite.json}"
   role   = "${aws_iam_role.lambda-execution-role-processor.id}"
 }
 
 resource "aws_iam_role_policy" "lambda-execution-role-processor-cloudwatch-logs" {
-  name   = "lambda-execution-role-processor-cloudwatch-logs"
   policy = "${data.aws_iam_policy_document.cloudwatch-logs.json}"
   role   = "${aws_iam_role.lambda-execution-role-processor.id}"
 }
@@ -61,7 +59,6 @@ data "aws_iam_policy_document" "polly-synthetize-speech" {
 }
 
 resource "aws_iam_role_policy" "lambda-execution-role-processor-polly" {
-  name   = "lambda-execution-role-processor-polly"
   policy = "${data.aws_iam_policy_document.polly-synthetize-speech.json}"
   role   = "${aws_iam_role.lambda-execution-role-processor.id}"
 }

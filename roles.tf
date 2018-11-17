@@ -6,7 +6,6 @@ data "aws_iam_policy_document" "invoke-lambda" {
 }
 
 resource "aws_iam_role_policy" "invoke-lambda" {
-  name   = "invoke-lambda"
   policy = "${data.aws_iam_policy_document.invoke-lambda.json}"
   role   = "${aws_iam_role.apigateway-lamba-invocation-role.id}"
 }
@@ -48,7 +47,6 @@ data "aws_iam_policy_document" "sns-publish" {
 }
 
 resource "aws_iam_role_policy" "cloudwatch-logs" {
-  name   = "cloudwatch-logs"
   policy = "${data.aws_iam_policy_document.cloudwatch-logs.json}"
   role   = "${aws_iam_role.apigateway-lamba-invocation-role.id}"
 }
@@ -83,19 +81,16 @@ resource "aws_iam_role" "lambda-execution-role-api" {
 }
 
 resource "aws_iam_role_policy" "lambda-execution-role-api-dynamodb-readwrite" {
-  name   = "lambda-execution-role-api-dynamodb-readwrite"
   policy = "${data.aws_iam_policy_document.dynamodb-readwrite.json}"
   role   = "${aws_iam_role.lambda-execution-role-api.id}"
 }
 
 resource "aws_iam_role_policy" "lambda-execution-role-api-cloudwatch-logs" {
-  name   = "lambda-execution-role-api-cloudwatch-logs"
   policy = "${data.aws_iam_policy_document.cloudwatch-logs.json}"
   role   = "${aws_iam_role.lambda-execution-role-api.id}"
 }
 
 resource "aws_iam_role_policy" "lambda-execution-role-api-sns-publish" {
-  name   = "lambda-execution-role-api-sns-publish"
   policy = "${data.aws_iam_policy_document.sns-publish.json}"
   role   = "${aws_iam_role.lambda-execution-role-api.id}"
 }
