@@ -20,6 +20,10 @@ variable "tags" {
 
 variable "domain" {}
 
+variable "base_path" {
+  default = ""
+}
+
 # profile is used for commands executed through aws cli (see below)
 variable "profile" {
   default = "default"
@@ -62,7 +66,7 @@ resource "null_resource" "copy-contents" {
   }
 
   provisioner "local-exec" {
-    command     = "npm run build && aws s3 cp --recursive build/ s3://${aws_s3_bucket.website.bucket} --region ${var.region} --profile ${var.profile} --acl public-read"
+    command     = "npm run build && aws s3 cp --recursive build/ s3://${aws_s3_bucket.website.bucket}/${var.base_path} --region ${var.region} --profile ${var.profile} --acl public-read"
     working_dir = "website"
   }
 }

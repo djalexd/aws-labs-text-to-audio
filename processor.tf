@@ -7,6 +7,7 @@ resource "aws_lambda_function" "process-request" {
   runtime          = "python3.6"
   role             = "${aws_iam_role.lambda-execution-role-processor.arn}"
   tags             = "${var.tags}"
+  timeout          = 30
 
   environment = {
     variables = {
