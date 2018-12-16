@@ -63,3 +63,18 @@ resource "aws_iam_role_policy" "lambda-execution-role-processor-polly" {
   policy = "${data.aws_iam_policy_document.polly-synthetize-speech.json}"
   role   = "${aws_iam_role.lambda-execution-role-processor.id}"
 }
+
+data "aws_iam_policy_document" "s3-put-object" {
+  statement {
+    resources = ["*"]
+
+    actions = [
+      "s3:PutObject",
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "lambda-execution-role-processor-s3-pub-object" {
+  policy = "${data.aws_iam_policy_document.s3-put-object.json}"
+  role   = "${aws_iam_role.lambda-execution-role-processor.id}"
+}
