@@ -66,7 +66,7 @@ resource "null_resource" "copy-contents" {
   }
 
   provisioner "local-exec" {
-    command     = "npm run build && aws s3 cp --recursive build/ s3://${aws_s3_bucket.website.bucket}/${var.base_path} --region ${var.region} --profile ${var.profile} --acl public-read"
+    command     = "PUBLIC_URL=http://${var.domain}/${var.base_path} npm run build && aws s3 cp --recursive build/ s3://${aws_s3_bucket.website.bucket}/${var.base_path} --region ${var.region} --profile ${var.profile} --acl public-read"
     working_dir = "website"
   }
 }
